@@ -1239,7 +1239,7 @@
                         const [hour, minute] = timePart.split('.');
 
                         const slotStart = new Date(year, month - 1, day, hour, minute);
-                        const slotEnd = new Date(slotStart.getTime() + 3 * 60 * 60 * 1000); // +3 giờ
+                        const slotEnd = new Date(slotStart.getTime() + 1 * 60 * 60 * 1000); // +1 giờ
 
                         // Ưu tiên 1: Nếu slot đang diễn ra, return ngay
                         if (now >= slotStart && now < slotEnd) {
@@ -1278,7 +1278,7 @@
                         const [day, month, year] = datePart.split('.');
                         const [hour, minute] = timePart.split('.');
                         const slotStart = new Date(year, month - 1, day, hour, minute);
-                        const slotEnd = new Date(slotStart.getTime() + 3 * 60 * 60 * 1000);
+                        const slotEnd = new Date(slotStart.getTime() + 1 * 60 * 60 * 1000);
 
                         // Xác định trạng thái
                         let status = '';
@@ -1312,12 +1312,18 @@
                     });
                 }
 
+                // Biến theo dõi lựa chọn của người dùng
+                let userSelectedSlot = null;
+
                 // Render timeline ban đầu
                 slots.forEach((s, idx) => {
                     const div = document.createElement('div');
                     div.className = 'timeline-slot';
                     div.dataset.file = s.file;
                     div.onclick = () => {
+                        // Đánh dấu người dùng đã chủ động chọn slot này
+                        userSelectedSlot = idx;
+
                         document.querySelectorAll('.timeline-slot').forEach(el => el.classList.remove('active'));
                         div.classList.add('active');
                         loadData(s.file);
@@ -1341,8 +1347,10 @@
                     const newActiveIndex = findCurrentSlot();
                     updateTimeline(newActiveIndex);
 
-                    // Nếu slot thay đổi, tự động load sản phẩm mới
-                    if (newActiveIndex !== lastActiveIndex) {
+                    // CHỈ tự động load sản phẩm mới khi:
+                    // 1. Slot thay đổi
+                    // 2. Người dùng KHÔNG chủ động chọn slot khác (userSelectedSlot === null)
+                    if (newActiveIndex !== lastActiveIndex && userSelectedSlot === null) {
                         console.log(`🔄 Tự động chuyển sang slot: ${slots[newActiveIndex].label}`);
                         loadData(slots[newActiveIndex].file);
                         lastActiveIndex = newActiveIndex;
